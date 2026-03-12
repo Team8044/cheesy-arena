@@ -88,6 +88,7 @@
       <thead>
         <tr>
           <th>Station</th>
+          <th>IP Address</th>
           <th>Online</th>
           <th>E-Stop</th>
           <th>A-Stop</th>
@@ -97,6 +98,7 @@
         {{range .StationStatus}}
         <tr data-station="{{.Station}}">
           <td>{{.Station}}</td>
+          <td class="station-ip">{{if .IpAddress}}{{.IpAddress}}{{else}}&mdash;{{end}}</td>
           <td class="station-online" data-online="{{.Online}}">{{if .Online}}Online{{else}}Offline{{end}}</td>
           <td class="station-estop">{{if .RemoteEStop}}Active{{else}}&mdash;{{end}}</td>
           <td class="station-astop">{{if .RemoteAStop}}Active{{else}}&mdash;{{end}}</td>
@@ -137,17 +139,19 @@
         row.setAttribute('data-station', status.Station);
         row.innerHTML = `
           <td>${status.Station}</td>
+          <td class="station-ip"></td>
           <td class="station-online"></td>
           <td class="station-estop"></td>
           <td class="station-astop"></td>
-          <td class="station-last"></td>
         `;
         tbody.appendChild(row);
       }
+      const ipCell = row.querySelector('.station-ip');
       const onlineCell = row.querySelector('.station-online');
       const eCell = row.querySelector('.station-estop');
       const aCell = row.querySelector('.station-astop');
 
+      ipCell.textContent = status.IpAddress || '—';
       onlineCell.textContent = status.Online ? 'Online' : 'Offline';
       onlineCell.setAttribute('data-online', status.Online ? 'true' : 'false');
       eCell.textContent = status.RemoteEStop ? 'Active' : '—';

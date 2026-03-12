@@ -13,10 +13,12 @@ func TestBuildStationRpiStatusView(t *testing.T) {
 	now := time.Now()
 	web.arena.AllianceStations["R1"].RemoteLastUpdate = now
 	web.arena.AllianceStations["R1"].RemoteEStop = true
+	web.arena.AllianceStations["R1"].RemoteIpAddress = "10.0.100.41"
 	view := web.buildStationRpiStatusView()
 	if assert.Equal(t, 6, len(view)) {
 		assert.Equal(t, "R1", view[0].Station)
 		assert.True(t, view[0].Online)
 		assert.True(t, view[0].RemoteEStop)
+		assert.Equal(t, "10.0.100.41", view[0].IpAddress)
 	}
 }

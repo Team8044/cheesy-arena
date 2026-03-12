@@ -57,6 +57,7 @@ type StationRpiStatus struct {
 	Online      bool
 	RemoteEStop bool
 	RemoteAStop bool
+	IpAddress   string
 	LastUpdate  time.Time
 }
 
@@ -125,6 +126,7 @@ type AllianceStation struct {
 	aStopReset       bool
 	RemoteEStop      bool
 	RemoteAStop      bool
+	RemoteIpAddress  string
 	RemoteLastUpdate time.Time
 }
 
@@ -1272,6 +1274,10 @@ func (arena *Arena) applyStationStops(station string, plcEStop, plcAStop bool) {
 }
 
 func (arena *Arena) UpdateRemoteStops(station string, eStop, aStop bool) error {
+	return arena.UpdateRemoteStopsWithIp(station, eStop, aStop, "")
+}
+
+func (arena *Arena) UpdateRemoteStopsWithIp(station string, eStop, aStop bool, ipAddress string) error {
 	if arena.EventSettings != nil && !arena.EventSettings.UseStationRpiStops {
 		return nil
 	}
@@ -1281,6 +1287,9 @@ func (arena *Arena) UpdateRemoteStops(station string, eStop, aStop bool) error {
 	}
 	allianceStation.RemoteEStop = eStop
 	allianceStation.RemoteAStop = aStop
+	if ipAddress != "" {
+		allianceStation.RemoteIpAddress = ipAddress
+	}
 	allianceStation.RemoteLastUpdate = time.Now()
 	if arena.ArenaStatusNotifier != nil {
 		arena.ArenaStatusNotifier.Notify()
@@ -1304,6 +1313,7 @@ func (arena *Arena) StationRpiStatuses() map[string]StationRpiStatus {
 		status := StationRpiStatus{
 			RemoteEStop: station.RemoteEStop,
 			RemoteAStop: station.RemoteAStop,
+			IpAddress:   station.RemoteIpAddress,
 			LastUpdate:  station.RemoteLastUpdate,
 		}
 		if useRemote && !status.LastUpdate.IsZero() && now.Sub(status.LastUpdate) <= remoteStopTimeout {

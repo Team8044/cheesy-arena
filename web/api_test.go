@@ -5,15 +5,15 @@ package web
 
 import (
 	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
 	"github.com/Team254/cheesy-arena/tournament"
 	"github.com/Team254/cheesy-arena/websocket"
 	gorillawebsocket "github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -225,10 +225,12 @@ func TestStationStopsApiSuccess(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest("POST", "/api/stations/R1/stops", strings.NewReader(`{"eStop":true,"aStop":true,"secret":"cheesy"}`))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Real-IP", "10.0.100.41")
 	web.newHandler().ServeHTTP(recorder, req)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
 	assert.True(t, web.arena.AllianceStations["R1"].RemoteEStop)
 	assert.True(t, web.arena.AllianceStations["R1"].RemoteAStop)
+	assert.Equal(t, "10.0.100.41", web.arena.AllianceStations["R1"].RemoteIpAddress)
 	assert.False(t, web.arena.AllianceStations["R1"].RemoteLastUpdate.IsZero())
 }

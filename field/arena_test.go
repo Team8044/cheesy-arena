@@ -1018,19 +1018,23 @@ func TestStationRpiStatuses(t *testing.T) {
 	arena.AllianceStations["R1"].RemoteLastUpdate = now
 	arena.AllianceStations["R1"].RemoteEStop = true
 	arena.AllianceStations["R1"].RemoteAStop = false
+	arena.AllianceStations["R1"].RemoteIpAddress = "10.0.100.41"
 	arena.AllianceStations["R2"].RemoteLastUpdate = now.Add(-10 * time.Second)
 	arena.AllianceStations["R2"].RemoteEStop = false
 	arena.AllianceStations["R2"].RemoteAStop = true
+	arena.AllianceStations["R2"].RemoteIpAddress = "10.0.100.42"
 
 	statuses := arena.StationRpiStatuses()
 	r1 := statuses["R1"]
 	assert.True(t, r1.Online)
 	assert.True(t, r1.RemoteEStop)
 	assert.False(t, r1.RemoteAStop)
+	assert.Equal(t, "10.0.100.41", r1.IpAddress)
 	r2 := statuses["R2"]
 	assert.False(t, r2.Online)
 	assert.False(t, r2.RemoteEStop)
 	assert.True(t, r2.RemoteAStop)
+	assert.Equal(t, "10.0.100.42", r2.IpAddress)
 }
 
 func TestPlcMatchCycleEvergreen(t *testing.T) {

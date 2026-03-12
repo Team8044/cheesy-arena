@@ -560,6 +560,7 @@ type stationRpiStatusView struct {
 	Online      bool
 	RemoteEStop bool
 	RemoteAStop bool
+	IpAddress   string
 }
 
 func (web *Web) buildStationRpiStatusView() []stationRpiStatusView {
@@ -576,6 +577,7 @@ func (web *Web) buildStationRpiStatusView() []stationRpiStatusView {
 			Online:      status.Online,
 			RemoteEStop: status.RemoteEStop,
 			RemoteAStop: status.RemoteAStop,
+			IpAddress:   status.IpAddress,
 		})
 	}
 	return result

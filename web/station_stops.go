@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 )
@@ -38,8 +39,9 @@ func (web *Web) stationStopsApiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	station := strings.ToUpper(r.PathValue("stationId"))
+	ipAddress := requestIpAddress(r)
 	oldStatuses := web.arena.StationRpiStatuses()
-	if err := web.arena.UpdateRemoteStops(station, req.EStop, req.AStop); err != nil {
+	if err := web.arena.UpdateRemoteStopsWithIp(station, req.EStop, req.AStop, ipAddress); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -55,4 +57,19 @@ func (web *Web) stationStopsApiHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{"success": true})
+}
+
+func requestIpAddress(r *http.Request) string {
+	if ipAddress := strings.TrimSpace(r.Header.Get("X-Real-IP")); ipAddress != "" {
+		return ipAddress
+	}
+	if forwarded := strings.TrimSpace(r.Header.Get("X-Forwarded-For")); forwarded != "" {
+		if first := strings.TrimSpace(strings.Split(forwarded, ",")[0]); first != "" {
+			return first
+		}
+	}
+	if host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr)); err == nil {
+		return host
+	}
+	return strings.TrimSpace(r.RemoteAddr)
 }
