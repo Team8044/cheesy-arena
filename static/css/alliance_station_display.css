@@ -117,6 +117,36 @@ body[data-position=right] #inMatch #blueScore {
   display: block;
   color: #07f;
 }
+body[data-mode=match] #inMatch #timeRemaining,
+body[data-mode=timeout] #inMatch #timeRemaining {
+  display: block;
+  font-size: 32vw;
+}
+body[data-mode=match] #inMatch #redScore,
+body[data-mode=match] #inMatch #blueScore,
+body[data-mode=timeout] #inMatch #redScore,
+body[data-mode=timeout] #inMatch #blueScore {
+  display: none !important;
+}
+
+#inMatch #shiftStatus {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 13vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  color: #ffd400;
+  font-family: "FuturaLTBold";
+  font-weight: 900;
+  font-size: 5.2vw;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 /* Pre Match */
 #preMatch #teamNumber {
@@ -177,7 +207,7 @@ body[data-position=right] #inMatch #blueScore {
 
 #badgeRow {
   position: absolute;
-  bottom: 10px;
+  bottom: calc(13vh + 10px);
   left: 10px;
   right: 10px;
   display: flex;

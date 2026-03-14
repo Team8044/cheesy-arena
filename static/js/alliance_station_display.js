@@ -7,6 +7,7 @@ var station = "";
 var blinkInterval;
 var currentScreen = "blank";
 var websocket;
+const shiftTargetFuelForRp = 360;
 
 // Handles a websocket message to change which screen is displayed.
 var handleAllianceStationDisplayMode = function (targetScreen) {
@@ -16,7 +17,7 @@ var handleAllianceStationDisplayMode = function (targetScreen) {
   } else {
     var body = $("body");
     body.attr("data-mode", targetScreen);
-    if (targetScreen === "timeout") {
+    if (targetScreen === "timeout" || targetScreen === "match") {
       body.attr("data-position", "middle");
     } else {
       switch (station[1]) {
@@ -31,6 +32,66 @@ var handleAllianceStationDisplayMode = function (targetScreen) {
           break;
       }
     }
+  }
+};
+
+const getShiftOrdinalText = function (segment) {
+  switch (segment) {
+    case "auto":
+    case "pause":
+      return "0/6";
+    case "transition":
+      return "1/6";
+    case "shift1":
+      return "2/6";
+    case "shift2":
+      return "3/6";
+    case "shift3":
+      return "4/6";
+    case "shift4":
+      return "5/6";
+    case "endgame":
+      return "6/6";
+    default:
+      return "-/6";
+  }
+};
+
+const getActiveAllianceCode = function (data) {
+  switch (data.ActiveAlliance) {
+    case "RED":
+      return "R";
+    case "BLUE":
+      return "B";
+    case "BOTH":
+      return "RB";
+    case "PENDING":
+      return "P";
+    default:
+      return "-";
+  }
+};
+
+const getFuelForShiftInfo = function (data) {
+  const redFuel = data.RedAutoFuel || 0;
+  const blueFuel = data.BlueAutoFuel || 0;
+  switch (data.ActiveAlliance) {
+    case "RED":
+      return redFuel;
+    case "BLUE":
+      return blueFuel;
+    case "BOTH":
+      if (station && station[0] === "R") {
+        return redFuel;
+      }
+      if (station && station[0] === "B") {
+        return blueFuel;
+      }
+      return Math.max(redFuel, blueFuel);
+    case "PENDING":
+      return Math.max(redFuel, blueFuel);
+    default:
+      return 0;
   }
 };
 
@@ -203,15 +264,11 @@ var handleMatchTime = function (data) {
     }
     countdownString = Math.floor(countdownSec / 60) + ":" + countdownString;
     $("#timeRemaining").text(countdownString);
-    const shiftLabel = getShiftStatusText(data);
-    let shiftText = shiftLabel;
-    if (station && (station[0] === "R" || station[0] === "B")) {
-      const activityText = getAllianceShiftActivityText(data, station[0]);
-      shiftText = shiftLabel ? `${shiftLabel} / ${activityText}` : activityText;
-    } else if (shiftLabel !== "") {
-      shiftText = `${shiftLabel} / ${getActiveAllianceText(data)}`;
-    }
-    $("#shiftStatus").text(shiftText || "");
+    const shiftCountdownSec = data.MatchSegmentRemainingSec > 0 ? data.MatchSegmentRemainingSec : countdownSec;
+    const shiftInfoText = `${getActiveAllianceCode(data)}${Math.max(0, shiftCountdownSec)} | ${
+      getShiftOrdinalText(data.MatchSegment)
+    } | ${getFuelForShiftInfo(data)}/${shiftTargetFuelForRp}`;
+    $("#shiftStatus").text(shiftInfoText);
     $("#match").attr("data-state", matchState);
   });
 };
