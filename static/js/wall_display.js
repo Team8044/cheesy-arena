@@ -19,11 +19,14 @@ const logoUp = "20px";
 const logoDown = $("#logo").css("top");
 const scoreIn = $(".score").css("width");
 const scoreMid = "185px";
-const scoreOut = "250px";
-const scoreFieldsOut = "25px";
-const overlayTopOffset = 110;
+const scoreOut = "370px";
+const scoreFieldsOut = "150px";
 const timeoutDetailsIn = $("#timeoutDetails").css("width");
 const timeoutDetailsOut = "570px";
+const shiftDisplaySelector = ".shift-display";
+const standaloneLayoutWidth = 980;
+const standaloneLayoutHeight = 260;
+const standaloneLayoutMargin = 24;
 
 // Handles a websocket message to change which screen is displayed.
 const handleAudienceDisplayMode = function (targetScreen) {
@@ -133,8 +136,23 @@ const handleMatchLoad = function (data) {
 // Handles a websocket message to update the match time countdown.
 const handleMatchTime = function (data) {
   translateMatchTime(data, function (matchState, matchStateText, countdownSec) {
+    const shiftSegment = data.MatchSegmentLabel || matchStateText;
+    const shiftRemainingSec = data.MatchSegmentRemainingSec > 0 ? data.MatchSegmentRemainingSec : countdownSec;
+
     $("#matchTime").text(getCountdownString(countdownSec));
-    $("#shiftStatus").text(getShiftStatusText(data));
+    $("#shiftSegment").text(shiftSegment);
+    $("#shiftRemaining").text(getCountdownString(Math.max(0, shiftRemainingSec)));
+    $(`#${redSide}Fuel`).text(data.RedAutoFuel || 0);
+    $(`#${blueSide}Fuel`).text(data.BlueAutoFuel || 0);
+    const redActive = !!data.RedAllianceActive;
+    const blueActive = !!data.BlueAllianceActive;
+    const singleAllianceActive = redActive !== blueActive;
+    const redPanel = $(`#${redSide}ScorePanel`);
+    const bluePanel = $(`#${blueSide}ScorePanel`);
+    redPanel.toggleClass("active-shift", redActive);
+    bluePanel.toggleClass("active-shift", blueActive);
+    redPanel.toggleClass("inactive-shift", singleAllianceActive && !redActive);
+    bluePanel.toggleClass("inactive-shift", singleAllianceActive && !blueActive);
   });
 };
 
@@ -142,19 +160,6 @@ const handleMatchTime = function (data) {
 const handleRealtimeScore = function (data) {
   $(`#${redSide}ScoreNumber`).text(data.Red.ScoreSummary.Score - data.Red.ScoreSummary.BargePoints);
   $(`#${blueSide}ScoreNumber`).text(data.Blue.ScoreSummary.Score - data.Blue.ScoreSummary.BargePoints);
-
-  let redCoral, blueCoral;
-  if (currentMatch.Type === matchTypePlayoff) {
-    redCoral = data.Red.ScoreSummary.NumCoral;
-    blueCoral = data.Blue.ScoreSummary.NumCoral;
-  } else {
-    redCoral = `${data.Red.ScoreSummary.NumCoralLevels}/${data.Red.ScoreSummary.NumCoralLevelsGoal}`;
-    blueCoral = `${data.Blue.ScoreSummary.NumCoralLevels}/${data.Blue.ScoreSummary.NumCoralLevelsGoal}`;
-  }
-  $(`#${redSide}Coral`).text(redCoral);
-  $(`#${redSide}Algae`).text(data.Red.ScoreSummary.NumAlgae);
-  $(`#${blueSide}Coral`).text(blueCoral);
-  $(`#${blueSide}Algae`).text(data.Blue.ScoreSummary.NumAlgae);
 };
 
 const transitionBlankToIntro = function (callback) {
@@ -182,8 +187,8 @@ const transitionBlankToMatch = function (callback) {
     $("#eventMatchInfo").transition({queue: false, height: eventMatchInfoDown}, 500, "ease", callback);
     $(".score-number").transition({queue: false, opacity: 1}, 750, "ease");
     $("#matchTime").transition({queue: false, opacity: 1}, 750, "ease");
+    $(shiftDisplaySelector).transition({queue: false, opacity: 1}, 750, "ease");
     $(".score-fields").transition({queue: false, opacity: 1}, 750, "ease");
-    $(".score-aux").transition({queue: false, opacity: 1}, 750, "ease");
   });
 };
 
@@ -192,6 +197,7 @@ const transitionBlankToTimeout = function (callback) {
   $("#logo").transition({queue: false, top: logoUp}, 500, "ease", function () {
     $(".timeout-detail").transition({queue: false, opacity: 1}, 750, "ease");
     $("#matchTime").transition({queue: false, opacity: 1}, 750, "ease", callback);
+    $(shiftDisplaySelector).transition({queue: false, opacity: 1}, 750, "ease");
   });
 };
 
@@ -217,8 +223,8 @@ const transitionIntroToMatch = function (callback) {
   $(".score").transition({queue: false, width: scoreOut}, 500, "ease", function () {
     $(".score-number").transition({queue: false, opacity: 1}, 750, "ease");
     $("#matchTime").transition({queue: false, opacity: 1}, 750, "ease", callback);
+    $(shiftDisplaySelector).transition({queue: false, opacity: 1}, 750, "ease");
     $(".score-fields").transition({queue: false, opacity: 1}, 750, "ease");
-    $(".score-aux").transition({queue: false, opacity: 1}, 750, "ease");
   });
 };
 
@@ -233,6 +239,7 @@ const transitionIntroToTimeout = function (callback) {
       $("#logo").transition({queue: false, top: logoUp}, 500, "ease", function () {
         $(".timeout-detail").transition({queue: false, opacity: 1}, 750, "ease");
         $("#matchTime").transition({queue: false, opacity: 1}, 750, "ease", callback);
+        $(shiftDisplaySelector).transition({queue: false, opacity: 1}, 750, "ease");
       });
     });
   });
@@ -248,8 +255,8 @@ const transitionLogoToBlank = function (callback) {
 const transitionMatchToBlank = function (callback) {
   $("#eventMatchInfo").transition({queue: false, height: eventMatchInfoUp}, 500, "ease");
   $("#matchTime").transition({queue: false, opacity: 0}, 300, "linear");
+  $(shiftDisplaySelector).transition({queue: false, opacity: 0}, 300, "linear");
   $(".score-fields").transition({queue: false, opacity: 0}, 300, "ease");
-  $(".score-aux").transition({queue: false, opacity: 0}, 750, "ease");
   $(".score-number").transition({queue: false, opacity: 0}, 300, "linear", function () {
     $("#eventMatchInfo").hide();
     $(".score-fields").transition({queue: false, width: 0}, 500, "ease");
@@ -265,8 +272,8 @@ const transitionMatchToBlank = function (callback) {
 const transitionMatchToIntro = function (callback) {
   $(".score-number").transition({queue: false, opacity: 0}, 300, "linear");
   $(".score-fields").transition({queue: false, opacity: 0}, 300, "ease");
-  $(".score-aux").transition({queue: false, opacity: 0}, 750, "ease");
   $("#matchTime").transition({queue: false, opacity: 0}, 300, "linear", function () {
+    $(shiftDisplaySelector).transition({queue: false, opacity: 0}, 300, "linear");
     $(".score-fields").transition({queue: false, width: 0}, 500, "ease");
     $("#logo").transition({queue: false, top: logoDown}, 500, "ease");
     $(".score").transition({queue: false, width: scoreMid}, 500, "ease", function () {
@@ -280,6 +287,7 @@ const transitionMatchToIntro = function (callback) {
 const transitionTimeoutToBlank = function (callback) {
   $(".timeout-detail").transition({queue: false, opacity: 0}, 300, "linear");
   $("#matchTime").transition({queue: false, opacity: 0}, 300, "linear", function () {
+    $(shiftDisplaySelector).transition({queue: false, opacity: 0}, 300, "linear");
     $("#timeoutDetails").transition({queue: false, width: timeoutDetailsIn}, 500, "ease");
     $("#logo").transition({queue: false, top: logoDown}, 500, "ease", callback);
   });
@@ -288,6 +296,7 @@ const transitionTimeoutToBlank = function (callback) {
 const transitionTimeoutToIntro = function (callback) {
   $(".timeout-detail").transition({queue: false, opacity: 0}, 300, "linear");
   $("#matchTime").transition({queue: false, opacity: 0}, 300, "linear", function () {
+    $(shiftDisplaySelector).transition({queue: false, opacity: 0}, 300, "linear");
     $("#timeoutDetails").transition({queue: false, width: timeoutDetailsIn}, 500, "ease");
     $("#logo").transition({queue: false, top: logoDown}, 500, "ease", function () {
       $(".avatars").css("display", "flex");
@@ -305,6 +314,13 @@ const getAvatarUrl = function (teamId) {
   return "/api/teams/" + teamId + "/avatar";
 };
 
+const applyStandaloneLayout = function () {
+  const maxWidth = Math.max(1, window.innerWidth - standaloneLayoutMargin * 2);
+  const maxHeight = Math.max(1, window.innerHeight - standaloneLayoutMargin * 2);
+  const scale = Math.max(0.5, Math.min(maxWidth / standaloneLayoutWidth, maxHeight / standaloneLayoutHeight));
+  $("#overlayCentering").css("transform", `translate(-50%, -50%) scale(${scale})`);
+};
+
 $(function () {
   // Read the configuration for this display from the URL query string.
   const urlParams = new URLSearchParams(window.location.search);
@@ -320,10 +336,9 @@ $(function () {
   $(".reversible-left").attr("data-reversed", reversed);
   $(".reversible-right").attr("data-reversed", reversed);
 
-  // Adjust position and size of display contents.
-  const overlayCentering = $("#overlayCentering");
-  overlayCentering.css("top", parseInt(urlParams.get("topSpacingPx")) + overlayTopOffset + "px");
-  overlayCentering.css("transform", `scale(${urlParams.get("zoomFactor")})`);
+  // Wall display runs standalone, so auto-center and scale to fill the screen.
+  applyStandaloneLayout();
+  $(window).on("resize", applyStandaloneLayout);
 
   const message = urlParams.get("message");
   const messageDiv = $("#message");
