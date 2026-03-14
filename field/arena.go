@@ -113,6 +113,7 @@ type Arena struct {
 	preloadedTeams                    *[6]*model.Team
 	pendingSwitchRebootCancel         context.CancelFunc
 	NetworkConfiguring                bool
+	rebootManagedSwitch               func(*network.NetgearPlusSwitch)
 }
 
 type AllianceStation struct {
@@ -133,6 +134,9 @@ type AllianceStation struct {
 // Creates the arena and sets it to its initial state.
 func NewArena(dbPath string) (*Arena, error) {
 	arena := new(Arena)
+	arena.rebootManagedSwitch = func(netgearSwitch *network.NetgearPlusSwitch) {
+		go netgearSwitch.Reboot()
+	}
 	arena.configureNotifiers()
 	arena.Plc = new(plc.ModbusPlc)
 
@@ -667,6 +671,7 @@ func (arena *Arena) Update() {
 			enabled = false
 			sendDsPacket = true
 			go arena.BlackmagicClient.StopRecording()
+			arena.maybeRebootTeamSwitchesForScrimmage()
 			go func() {
 				// Leave the scores on the screen briefly at the end of the match.
 				time.Sleep(time.Second * matchEndScoreDwellSec)
@@ -724,6 +729,21 @@ func (arena *Arena) Update() {
 
 	arena.LastMatchTimeSec = matchTimeSec
 	arena.lastMatchState = arena.MatchState
+}
+
+func (arena *Arena) maybeRebootTeamSwitchesForScrimmage() {
+	if !arena.EventSettings.ManualMatchAdvance {
+		return
+	}
+
+	if arena.EventSettings.RedTeamSwitchManagementEnabled {
+		log.Printf("Scrimmage mode enabled; rebooting red team switch at match end.")
+		arena.rebootManagedSwitch(arena.redTeamSwitch)
+	}
+	if arena.EventSettings.BlueTeamSwitchManagementEnabled {
+		log.Printf("Scrimmage mode enabled; rebooting blue team switch at match end.")
+		arena.rebootManagedSwitch(arena.blueTeamSwitch)
+	}
 }
 
 // Loops indefinitely to track and update the arena components.

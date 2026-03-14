@@ -6,6 +6,7 @@ package field
 import (
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
+	"github.com/Team254/cheesy-arena/network"
 	"github.com/Team254/cheesy-arena/partner"
 	"github.com/Team254/cheesy-arena/playoff"
 	"github.com/Team254/cheesy-arena/tournament"
@@ -222,6 +223,50 @@ func TestArenaMatchFlow(t *testing.T) {
 	assert.Equal(t, true, arena.AllianceStations["B3"].DsConn.Auto)
 	assert.Equal(t, false, arena.AllianceStations["B3"].DsConn.Enabled)
 	assert.Equal(t, false, arena.AllianceStations["R1"].Bypass)
+}
+
+func TestArenaScrimmageMatchEndRebootsTeamSwitches(t *testing.T) {
+	testCases := []struct {
+		name          string
+		manualAdvance bool
+		redEnabled    bool
+		blueEnabled   bool
+		expectedRed   int
+		expectedBlue  int
+	}{
+		{"scrimmage_reboots_both_team_switches", true, true, true, 1, 1},
+		{"non_scrimmage_does_not_reboot_team_switches", false, true, true, 0, 0},
+		{"scrimmage_respects_disabled_blue_team_switch_management", true, true, false, 1, 0},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			arena := setupTestArena(t)
+			arena.EventSettings.ManualMatchAdvance = tc.manualAdvance
+			arena.EventSettings.RedTeamSwitchManagementEnabled = tc.redEnabled
+			arena.EventSettings.BlueTeamSwitchManagementEnabled = tc.blueEnabled
+
+			redRebootCount := 0
+			blueRebootCount := 0
+			arena.rebootManagedSwitch = func(netgearSwitch *network.NetgearPlusSwitch) {
+				if netgearSwitch == arena.redTeamSwitch {
+					redRebootCount++
+				} else if netgearSwitch == arena.blueTeamSwitch {
+					blueRebootCount++
+				} else {
+					t.Fatalf("unexpected switch reboot request")
+				}
+			}
+
+			arena.MatchState = TeleopPeriod
+			arena.MatchStartTime = time.Now().Add(-game.GetDurationToTeleopEnd() - time.Second)
+			arena.Update()
+
+			assert.Equal(t, PostMatch, arena.MatchState)
+			assert.Equal(t, tc.expectedRed, redRebootCount)
+			assert.Equal(t, tc.expectedBlue, blueRebootCount)
+		})
+	}
 }
 
 func TestArenaStateEnforcement(t *testing.T) {
