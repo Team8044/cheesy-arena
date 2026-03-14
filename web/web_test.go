@@ -89,3 +89,9 @@ func setupTestWeb(t *testing.T) *Web {
 	arena := field.SetupTestArena(t)
 	return NewWeb(arena)
 }
+
+func setupLegacyScoringTestWeb(t *testing.T) *Web {
+	web := setupTestWeb(t)
+	game.ActiveGameConfig = nil
+	return web
+}

@@ -56,7 +56,12 @@ const translateMatchTime = function (data, callback) {
       matchStateText = "TIMEOUT";
       break;
   }
-  callback(matchStates[data.MatchState], matchStateText, getCountdown(data.MatchState, data.MatchTimeSec));
+  callback(
+    matchStates[data.MatchState],
+    matchStateText,
+    getCountdown(data.MatchState, data.MatchTimeSec),
+    getShiftStatusText(data),
+  );
 };
 
 // Returns the per-period countdown for the given match state and overall time into the match.
@@ -85,4 +90,81 @@ const getCountdownString = function (countdownSec) {
     countdownString = "0" + countdownString;
   }
   return Math.floor(countdownSec / 60) + ":" + countdownString;
+};
+
+const getActiveAllianceText = function (data) {
+  switch (data.ActiveAlliance) {
+    case "RED":
+      return "RED ACTIVE";
+    case "BLUE":
+      return "BLUE ACTIVE";
+    case "BOTH":
+      return "BOTH ACTIVE";
+    case "PENDING":
+      return "WINNER PENDING";
+    default:
+      return "";
+  }
+};
+
+const getShiftStatusText = function (data) {
+  if (!data || !data.MatchSegmentLabel) {
+    return "";
+  }
+  const activeText = getActiveAllianceText(data);
+  if (!activeText) {
+    return data.MatchSegmentLabel;
+  }
+  return `${data.MatchSegmentLabel} - ${activeText}`;
+};
+
+const getAllianceShiftActivityText = function (data, alliance) {
+  if (!data) {
+    return "";
+  }
+  if (data.ActiveAlliance === "PENDING") {
+    return "PENDING";
+  }
+  if (data.ActiveAlliance === "BOTH") {
+    return "BOTH ACTIVE";
+  }
+  if (data.ActiveAlliance === "RED") {
+    return alliance === "R" ? "ACTIVE" : "INACTIVE";
+  }
+  if (data.ActiveAlliance === "BLUE") {
+    return alliance === "B" ? "ACTIVE" : "INACTIVE";
+  }
+  return "";
+};
+
+const getPhaseFromMatchTime = function (data) {
+  const state = matchStates[data.MatchState];
+  if (state === "AUTO_PERIOD" || state === "PAUSE_PERIOD") {
+    return "auto";
+  }
+  if (state === "TELEOP_PERIOD") {
+    if (data.MatchSegment === "transition") {
+      return "transition";
+    }
+    if (data.MatchSegment === "shift1") {
+      return "shift1";
+    }
+    if (data.MatchSegment === "shift2") {
+      return "shift2";
+    }
+    if (data.MatchSegment === "shift3") {
+      return "shift3";
+    }
+    if (data.MatchSegment === "shift4") {
+      return "shift4";
+    }
+    if (data.MatchSegment === "endgame") {
+      return "endgame";
+    }
+    return "teleop";
+  }
+  if (state === "POST_MATCH") {
+    return "post";
+  }
+  return "pregame";
 };

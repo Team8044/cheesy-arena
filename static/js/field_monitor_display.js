@@ -188,7 +188,8 @@ const handleArenaStatus = function (data) {
 // Handles a websocket message to update the match time countdown.
 const handleMatchTime = function (data) {
   translateMatchTime(data, function (matchState, matchStateText, countdownSec) {
-    $("#matchState").text(matchStateText);
+    const shiftStatus = getShiftStatusText(data);
+    $("#matchState").text(shiftStatus ? `${matchStateText} / ${shiftStatus}` : matchStateText);
     $("#matchTime").text(countdownSec);
     if (matchStateText === "PRE-MATCH" || matchStateText === "POST-MATCH") {
       $(".ds-dependent").attr("data-preMatch", "true");

@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"reflect"
 	"strconv"
 	"strings"
@@ -107,6 +108,9 @@ type Arena struct {
 	LowerThird                        *model.LowerThird
 	ShowLowerThird                    bool
 	MuteMatchSounds                   bool
+	autoFuelWinner                    string
+	autoFuelWinnerRandomized          bool
+	currentGameSpecificMessage        string
 	matchAborted                      bool
 	soundsPlayed                      map[*game.MatchSound]struct{}
 	breakDescription                  string
@@ -114,6 +118,7 @@ type Arena struct {
 	pendingSwitchRebootCancel         context.CancelFunc
 	NetworkConfiguring                bool
 	rebootManagedSwitch               func(*network.NetgearPlusSwitch)
+	randIntn                          func(int) int
 }
 
 type AllianceStation struct {
@@ -134,6 +139,7 @@ type AllianceStation struct {
 // Creates the arena and sets it to its initial state.
 func NewArena(dbPath string) (*Arena, error) {
 	arena := new(Arena)
+	arena.randIntn = rand.Intn
 	arena.rebootManagedSwitch = func(netgearSwitch *network.NetgearPlusSwitch) {
 		go netgearSwitch.Reboot()
 	}
@@ -297,7 +303,7 @@ func (arena *Arena) UpdatePlayoffTournament() error {
 // Sets up the arena for the given match.
 func (arena *Arena) LoadMatch(match *model.Match) error {
 	if arena.MatchState != PreMatch && arena.MatchState != TimeoutActive {
-		return fmt.Errorf("Cannot load match while there is a match still in progress or with results pending")
+		return fmt.Errorf("cannot load match while there is a match still in progress or with results pending")
 	}
 
 	arena.CurrentMatch = match
@@ -366,6 +372,9 @@ func (arena *Arena) LoadMatch(match *model.Match) error {
 	arena.BlueRealtimeScore = NewRealtimeScore()
 	arena.ScoringPanelRegistry.resetScoreCommitted()
 	arena.Plc.ResetMatch()
+	arena.autoFuelWinner = ""
+	arena.autoFuelWinnerRandomized = false
+	arena.setGameSpecificMessage("")
 
 	// Notify any listeners about the new match.
 	arena.MatchLoadNotifier.Notify()
@@ -545,6 +554,9 @@ func (arena *Arena) ResetMatch() error {
 	arena.AllianceStations["B2"].Bypass = false
 	arena.AllianceStations["B3"].Bypass = false
 	arena.MuteMatchSounds = false
+	arena.autoFuelWinner = ""
+	arena.autoFuelWinnerRandomized = false
+	arena.setGameSpecificMessage("")
 	return nil
 }
 
@@ -649,6 +661,7 @@ func (arena *Arena) Update() {
 				arena.MatchState = PausePeriod
 				enabled = false
 			} else {
+				arena.resolveAutoFuelWinner()
 				arena.MatchState = TeleopPeriod
 				enabled = true
 			}
@@ -657,6 +670,7 @@ func (arena *Arena) Update() {
 		auto = false
 		enabled = false
 		if matchTimeSec >= game.GetDurationToTeleopStart().Seconds() {
+			arena.resolveAutoFuelWinner()
 			arena.MatchState = TeleopPeriod
 			auto = false
 			enabled = true
@@ -1112,6 +1126,13 @@ func (arena *Arena) sendDsPacket(auto bool, enabled bool) {
 			err := dsConn.update(arena)
 			if err != nil {
 				log.Printf("Unable to send driver station packet for team %d.", allianceStation.Team.Id)
+			}
+			if dsConn.lastGameSpecificMessage != arena.currentGameSpecificMessage {
+				if err = dsConn.sendGameDataPacket(arena.currentGameSpecificMessage); err != nil {
+					log.Printf("Unable to send game data packet for team %d: %v", dsConn.TeamId, err)
+				} else {
+					dsConn.lastGameSpecificMessage = arena.currentGameSpecificMessage
+				}
 			}
 		}
 	}

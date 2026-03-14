@@ -207,9 +207,9 @@ func TestSetupTeamsWpaKeys(t *testing.T) {
 	assert.Equal(t, 303, recorder.Code)
 	team1, _ = web.arena.Database.GetTeamById(254)
 	team3, _ := web.arena.Database.GetTeamById(1114)
-	assert.NotEqual(t, "aaaaaaaa", team1.WpaKey)
+	assert.Equal(t, "password", team1.WpaKey)
 	assert.Equal(t, 8, len(team1.WpaKey))
-	assert.NotEqual(t, team2.WpaKey, team3.WpaKey)
+	assert.Equal(t, "password", team3.WpaKey)
 	assert.Equal(t, 8, len(team3.WpaKey))
 
 	// Disallow invalid manual WPA keys.

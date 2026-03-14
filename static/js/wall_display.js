@@ -134,6 +134,7 @@ const handleMatchLoad = function (data) {
 const handleMatchTime = function (data) {
   translateMatchTime(data, function (matchState, matchStateText, countdownSec) {
     $("#matchTime").text(getCountdownString(countdownSec));
+    $("#shiftStatus").text(getShiftStatusText(data));
   });
 };
 

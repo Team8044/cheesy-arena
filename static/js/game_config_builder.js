@@ -24,6 +24,10 @@ class GameConfigBuilder {
     document.getElementById("gameName").value = this.config.name || "Custom Game";
     this.scoring = this.config.scoring || [];
     if (!Array.isArray(this.scoring)) this.scoring = [];
+    this.scoring = this.scoring.map((item) => ({
+      ...item,
+      countsForAutoFuel: !!item.countsForAutoFuel,
+    }));
     (this.config.panels || []).forEach((panel) => (this.panels[panel.id] = panel));
     ["red_near", "red_far", "blue_near", "blue_far", "referee", "head_ref"].forEach((id) => {
       if (!this.panels[id]) this.panels[id] = { id, title: id.replace("_", " "), widgets: [] };
@@ -262,7 +266,7 @@ class GameConfigBuilder {
 
   addScoringElement(silent = false) {
     const id = `score_${Date.now()}`;
-    this.scoring.push({ id, label: "Scoring Item", pointValue: 1 });
+    this.scoring.push({ id, label: "Scoring Item", pointValue: 1, countsForAutoFuel: false });
     this.renderScoringList();
     this.populateScoringSelect(this.getSelectedWidget()?.scoringId);
     if (!silent) {
@@ -338,6 +342,7 @@ class GameConfigBuilder {
         <td><input class="form-control form-control-sm bg-body" value="${s.label}" data-field="label" data-idx="${idx}"></td>
         <td><input class="form-control form-control-sm bg-body" value="${s.id}" data-field="id" data-idx="${idx}"></td>
         <td><input type="number" class="form-control form-control-sm bg-body" value="${s.pointValue}" data-field="pointValue" data-idx="${idx}"></td>
+        <td class="text-center"><input type="checkbox" data-field="countsForAutoFuel" data-idx="${idx}" ${s.countsForAutoFuel ? "checked" : ""}></td>
         <td><button class="btn btn-sm btn-outline-danger" data-remove="${idx}">Delete</button></td>
       `;
       tbody.appendChild(tr);
@@ -347,8 +352,31 @@ class GameConfigBuilder {
         const idx = parseInt(e.target.dataset.idx, 10);
         const field = e.target.dataset.field;
         if (!this.scoring[idx]) return;
-        if (field === "pointValue") this.scoring[idx][field] = parseInt(e.target.value || "0", 10);
-        else this.scoring[idx][field] = e.target.value;
+        if (field === "pointValue") {
+          this.scoring[idx][field] = parseInt(e.target.value || "0", 10);
+        } else if (field === "countsForAutoFuel") {
+          this.scoring[idx][field] = !!e.target.checked;
+        } else {
+          this.scoring[idx][field] = e.target.value;
+        }
+        this.populateScoringSelect(this.getSelectedWidget()?.scoringId);
+      });
+      if (el.type === "checkbox") {
+        el.addEventListener("change", (e) => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          const field = e.target.dataset.field;
+          if (!this.scoring[idx]) return;
+          if (field === "countsForAutoFuel") {
+            this.scoring[idx][field] = !!e.target.checked;
+          }
+        });
+      }
+    });
+    tbody.querySelectorAll("input[type=checkbox]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (!this.scoring[idx]) return;
+        this.scoring[idx].countsForAutoFuel = !!e.target.checked;
         this.populateScoringSelect(this.getSelectedWidget()?.scoringId);
       });
     });
@@ -390,6 +418,10 @@ class GameConfigBuilder {
         this.config = parsed;
         this.panels = {};
         this.scoring = parsed.scoring || [];
+        this.scoring = this.scoring.map((item) => ({
+          ...item,
+          countsForAutoFuel: !!item.countsForAutoFuel,
+        }));
         (parsed.panels || []).forEach((panel) => (this.panels[panel.id] = panel));
         this.renderPanel();
         this.renderScoringList();

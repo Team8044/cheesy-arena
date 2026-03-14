@@ -14,7 +14,7 @@ import (
 )
 
 func TestMatchReview(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	match1 := model.Match{Type: model.Practice, ShortName: "P1", Status: game.RedWonMatch}
 	match2 := model.Match{Type: model.Practice, ShortName: "P2"}
@@ -38,7 +38,7 @@ func TestMatchReview(t *testing.T) {
 }
 
 func TestMatchReviewEditExistingResult(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	tournament.CreateTestAlliances(web.arena.Database, 8)
 	web.arena.EventSettings.PlayoffType = model.SingleEliminationPlayoff
@@ -87,7 +87,7 @@ func TestMatchReviewEditExistingResult(t *testing.T) {
 }
 
 func TestMatchReviewCreateNewResult(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	tournament.CreateTestAlliances(web.arena.Database, 8)
 	web.arena.EventSettings.PlayoffType = model.SingleEliminationPlayoff
@@ -128,7 +128,7 @@ func TestMatchReviewCreateNewResult(t *testing.T) {
 }
 
 func TestMatchReviewEditCurrentMatch(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	match := model.Match{
 		Type:      model.Qualification,

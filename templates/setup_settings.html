@@ -146,6 +146,36 @@ UI for configuring event settings.
               </div>
             </fieldset>
             <fieldset class="mb-4">
+              <legend>The Blue Alliance Publishing</legend>
+              <div class="row mb-3">
+                <label class="col-lg-6 control-label" for="tbaPublishingEnabled">
+                  Enable Match/Ranking Publishing
+                </label>
+                <div class="col-lg-1 checkbox">
+                  <input type="checkbox" id="tbaPublishingEnabled"
+                    name="tbaPublishingEnabled" {{if .TbaPublishingEnabled}} checked{{end}}>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-lg-6 control-label">TBA Event Code</label>
+                <div class="col-lg-6">
+                  <input type="text" class="form-control" name="tbaEventCode" value="{{.TbaEventCode}}">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-lg-6 control-label">TBA Secret ID</label>
+                <div class="col-lg-6">
+                  <input type="text" class="form-control" name="tbaSecretId" value="{{.TbaSecretId}}">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-lg-6 control-label">TBA Secret</label>
+                <div class="col-lg-6">
+                  <input type="password" class="form-control" name="tbaSecret" value="{{.TbaSecret}}">
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="mb-4">
               <legend>Authentication</legend>
               <p>Configure password to enable authentication, or leave blank to disable.</p>
               <div class="row mb-3">

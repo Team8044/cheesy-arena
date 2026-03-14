@@ -50,9 +50,10 @@ type FoulRule struct {
 }
 
 type ScoringElement struct {
-	Id         string `json:"id"`
-	Label      string `json:"label"`
-	PointValue int    `json:"pointValue"`
+	Id                string `json:"id"`
+	Label             string `json:"label"`
+	PointValue        int    `json:"pointValue"`
+	CountsForAutoFuel bool   `json:"countsForAutoFuel,omitempty"`
 }
 
 type GridPosition struct {
@@ -124,6 +125,18 @@ func (cfg *GameConfigDefinition) PanelById(id string) *PanelConfig {
 	for i := range cfg.Panels {
 		if cfg.Panels[i].Id == id {
 			return &cfg.Panels[i]
+		}
+	}
+	return nil
+}
+
+func (cfg *GameConfigDefinition) ScoringElementById(id string) *ScoringElement {
+	if cfg == nil {
+		return nil
+	}
+	for i := range cfg.Scoring {
+		if cfg.Scoring[i].Id == id {
+			return &cfg.Scoring[i]
 		}
 	}
 	return nil

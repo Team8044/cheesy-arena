@@ -938,6 +938,9 @@ func TestRemoteStationStops(t *testing.T) {
 				game.MatchTiming.PauseDurationSec+game.MatchTiming.TeleopDurationSec,
 		) * time.Second,
 	)
+	for arena.MatchState != PostMatch {
+		arena.Update()
+	}
 	arena.Update()
 	assert.False(t, arena.AllianceStations["R1"].EStop)
 }

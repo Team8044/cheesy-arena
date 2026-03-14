@@ -34,7 +34,18 @@ type ArenaNotifiers struct {
 
 type MatchTimeMessage struct {
 	MatchState
-	MatchTimeSec int
+	MatchTimeSec             int
+	MatchSegment             MatchSegment
+	MatchSegmentLabel        string
+	MatchSegmentRemainingSec int
+	AutoFuelWinner           string
+	AutoFuelWinnerRandomized bool
+	AutoFuelWinnerPending    bool
+	ActiveAlliance           string
+	RedAllianceActive        bool
+	BlueAllianceActive       bool
+	RedAutoFuel              int
+	BlueAutoFuel             int
 }
 
 type audienceAllianceScoreFields struct {
@@ -217,7 +228,22 @@ func (arena *Arena) GenerateMatchLoadMessage() any {
 }
 
 func (arena *Arena) generateMatchTimeMessage() any {
-	return MatchTimeMessage{arena.MatchState, int(arena.MatchTimeSec())}
+	shiftState := arena.currentShiftState()
+	return MatchTimeMessage{
+		MatchState:               arena.MatchState,
+		MatchTimeSec:             int(arena.MatchTimeSec()),
+		MatchSegment:             shiftState.Segment,
+		MatchSegmentLabel:        shiftState.SegmentLabel,
+		MatchSegmentRemainingSec: shiftState.SegmentRemainingSec,
+		AutoFuelWinner:           shiftState.AutoFuelWinner,
+		AutoFuelWinnerRandomized: shiftState.AutoFuelWinnerRandomized,
+		AutoFuelWinnerPending:    shiftState.AutoFuelWinnerPending,
+		ActiveAlliance:           shiftState.ActiveAlliance,
+		RedAllianceActive:        shiftState.RedAllianceActive,
+		BlueAllianceActive:       shiftState.BlueAllianceActive,
+		RedAutoFuel:              shiftState.RedAutoFuel,
+		BlueAutoFuel:             shiftState.BlueAutoFuel,
+	}
 }
 
 func (arena *Arena) generateMatchTimingMessage() any {

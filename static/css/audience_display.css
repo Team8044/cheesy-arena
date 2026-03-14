@@ -95,13 +95,21 @@ html {
   background-color: #2080ff;
 }
 .score {
+  position: relative;
   width: 0;
   height: 100%;
   display: flex;
   justify-content: flex-start;
+  transition: opacity 180ms ease;
 }
 .score-right {
   justify-content: flex-end;
+}
+.score.active-shift {
+  opacity: 1;
+}
+.score.inactive-shift {
+  opacity: 0.62;
 }
 .avatars {
   min-width: 50px;
@@ -115,6 +123,8 @@ html {
   height: 25px;
 }
 .score-number {
+  position: absolute;
+  top: 0;
   width: 130px;
   height: 100%;
   display: flex;
@@ -124,39 +134,95 @@ html {
   font-size: 55px;
   color: #fff;
   opacity: 0;
+  z-index: 1;
+}
+.score:not(.score-right) .score-number {
+  right: 72px;
+}
+.score.score-right .score-number {
+  left: 72px;
 }
 .score-right .score-fields {
+  left: auto;
+  right: 22px;
   align-items: flex-end;
 }
 .score-fields {
-  height: 100%;
+  position: absolute;
+  bottom: 12px;
+  left: 22px;
+  height: auto;
   width: 0;
   display: none;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: flex-end;
   opacity: 0;
+  z-index: 2;
 }
 .score-field {
   display: flex;
   flex-direction: row;
 }
-.coral-icon {
-  width: 35px;
-  margin: 0 12px;
-}
-.algae-icon {
-  width: 31px;
-  margin: 0 14px;
-}
 .score-field > div {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
+  width: 85px;
   font-family: "FuturaLTBold";
-  font-size: 27px;
-  line-height: 27px;
+  font-size: 26px;
+  line-height: 26px;
   color: #fff;
+}
+.fuel-field {
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 10px;
+  min-width: 150px;
+}
+.fuel-field-right {
+  justify-content: flex-end;
+}
+.fuel-label {
+  width: auto !important;
+  letter-spacing: 2px;
+  font-size: 18px !important;
+  line-height: 18px !important;
+  color: #f5f5f5 !important;
+  opacity: 0.9;
+}
+.fuel-value {
+  width: auto !important;
+  min-width: 34px;
+  text-align: center;
+  font-size: 42px !important;
+  line-height: 38px !important;
+  color: #fff;
+}
+.shift-flag {
+  position: absolute;
+  top: 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background-color: #ffd400;
+  color: #222;
+  font-family: "FuturaLTBold";
+  font-size: 20px;
+  letter-spacing: 1px;
+  line-height: 20px;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 180ms ease, transform 180ms ease;
+  z-index: 3;
+}
+.score.active-shift .shift-flag {
+  opacity: 1;
+  transform: scale(1);
+}
+.shift-flag-left {
+  left: 12px;
+}
+.shift-flag-right {
+  right: 12px;
 }
 #matchCircle {
   position: absolute;
@@ -180,6 +246,39 @@ html {
   font-family: "FuturaLTBold";
   font-size: 32px;
   opacity: 0;
+}
+.shift-display {
+  position: absolute;
+  top: -96px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 460px;
+  height: 66px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #101010;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(34, 34, 34, 0.95) 0%, rgba(18, 18, 18, 0.95) 100%);
+  color: #fff;
+  padding: 0 16px;
+  opacity: 0;
+  text-transform: uppercase;
+  z-index: 5;
+}
+.shift-segment {
+  font-family: "FuturaLTBold";
+  font-size: 34px;
+  letter-spacing: 1px;
+  line-height: 34px;
+  white-space: nowrap;
+}
+.shift-remaining {
+  font-family: "FuturaLTBold";
+  color: #ffd400;
+  font-size: 42px;
+  line-height: 42px;
 }
 #eventMatchInfo {
   height: 0;

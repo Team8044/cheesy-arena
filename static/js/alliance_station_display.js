@@ -203,6 +203,15 @@ var handleMatchTime = function (data) {
     }
     countdownString = Math.floor(countdownSec / 60) + ":" + countdownString;
     $("#timeRemaining").text(countdownString);
+    const shiftLabel = getShiftStatusText(data);
+    let shiftText = shiftLabel;
+    if (station && (station[0] === "R" || station[0] === "B")) {
+      const activityText = getAllianceShiftActivityText(data, station[0]);
+      shiftText = shiftLabel ? `${shiftLabel} / ${activityText}` : activityText;
+    } else if (shiftLabel !== "") {
+      shiftText = `${shiftLabel} / ${getActiveAllianceText(data)}`;
+    }
+    $("#shiftStatus").text(shiftText || "");
     $("#match").attr("data-state", matchState);
   });
 };

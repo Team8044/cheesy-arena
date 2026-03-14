@@ -88,32 +88,25 @@ const handleMatchLoad = (data) => {
 };
 
 const handleMatchTime = (data) => {
+  currentPhase = getPhaseFromMatchTime(data);
   switch (matchStates[data.MatchState]) {
     case "AUTO_PERIOD":
-      currentPhase = "auto";
-      scoringAvailable = true;
-      commitAvailable = false;
-      break;
     case "PAUSE_PERIOD":
-      currentPhase = "auto";
-      scoringAvailable = true;
-      commitAvailable = false;
-      break;
     case "TELEOP_PERIOD":
-      currentPhase = "teleop";
       scoringAvailable = true;
       commitAvailable = false;
       break;
     case "POST_MATCH":
-      currentPhase = "post";
       scoringAvailable = true;
       commitAvailable = !committed;
       break;
     default:
-      currentPhase = "pregame";
       scoringAvailable = false;
       commitAvailable = false;
   }
+  const allianceCode = alliance === "red" ? "R" : "B";
+  $("#shiftSegment").text(getShiftStatusText(data));
+  $("#shiftActivity").text(`Panel ${allianceCode}: ${getAllianceShiftActivityText(data, allianceCode)}`);
   updateUiState();
 };
 
@@ -212,10 +205,22 @@ const updateUiState = () => {
     const disableForPhase =
       phase === "auto"
         ? currentPhase !== "auto"
+        : phase === "transition"
+        ? currentPhase !== "transition"
+        : phase === "shift1"
+        ? currentPhase !== "shift1"
+        : phase === "shift2"
+        ? currentPhase !== "shift2"
+        : phase === "shift3"
+        ? currentPhase !== "shift3"
+        : phase === "shift4"
+        ? currentPhase !== "shift4"
         : phase === "teleop"
-        ? currentPhase !== "teleop"
+        ? !["transition", "shift1", "shift2", "shift3", "shift4", "endgame"].includes(currentPhase)
+        : phase === "teleop_any"
+        ? !["transition", "shift1", "shift2", "shift3", "shift4", "endgame"].includes(currentPhase)
         : phase === "endgame"
-        ? !(currentPhase === "post" || currentPhase === "teleop")
+        ? !(currentPhase === "post" || currentPhase === "endgame")
         : false;
     card.querySelectorAll("button").forEach((btn) => {
       btn.disabled = !scoringAvailable || disableForPhase;

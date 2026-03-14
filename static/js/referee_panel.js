@@ -83,6 +83,8 @@ var handleMatchLoad = function (data) {
 
 // Handles a websocket message to update the match status.
 const handleMatchTime = function (data) {
+  const shiftStatus = getShiftStatusText(data);
+  $("#shiftStatus").text(shiftStatus || "");
   $(".control-button").attr("data-enabled", matchStates[data.MatchState] === "POST_MATCH");
 };
 

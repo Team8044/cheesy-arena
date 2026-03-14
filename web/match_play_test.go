@@ -19,7 +19,7 @@ import (
 )
 
 func TestMatchPlay(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	// Check that some text near the bottom of the page is present.
 	recorder := web.getHttpResponse("/match_play")
@@ -28,7 +28,7 @@ func TestMatchPlay(t *testing.T) {
 }
 
 func TestMatchPlayMatchList(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	match1 := model.Match{Type: model.Practice, ShortName: "P1", Status: game.RedWonMatch}
 	match2 := model.Match{Type: model.Practice, ShortName: "P2"}
@@ -52,7 +52,7 @@ func TestMatchPlayMatchList(t *testing.T) {
 }
 
 func TestCommitMatch(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	// Committing test match should update the stored saved match but not persist anything.
 	match := &model.Match{Id: 0, Type: model.Test, Red1: 101, Red2: 102, Red3: 103, Blue1: 104, Blue2: 105, Blue3: 106}
@@ -108,7 +108,7 @@ func TestCommitMatch(t *testing.T) {
 }
 
 func TestCommitTiebreak(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	match := &model.Match{
 		Type:                model.Qualification,
@@ -187,7 +187,7 @@ func TestCommitTiebreak(t *testing.T) {
 }
 
 func TestCommitCards(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	// Check that a yellow card sticks with a team.
 	team1 := &model.Team{Id: 3}
@@ -267,7 +267,7 @@ func TestCommitCards(t *testing.T) {
 }
 
 func TestMatchPlayWebsocketCommands(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 	web.arena.EventSettings.ManualMatchAdvance = true
 	web.arena.Database.CreateTeam(&model.Team{Id: 254})
 
@@ -360,7 +360,7 @@ func TestMatchPlayWebsocketCommands(t *testing.T) {
 }
 
 func TestMatchPlayWebsocketLoadMatch(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 	tournament.CreateTestAlliances(web.arena.Database, 8)
 	web.arena.CreatePlayoffTournament()
 
@@ -423,7 +423,7 @@ func TestMatchPlayWebsocketLoadMatch(t *testing.T) {
 }
 
 func TestMatchPlayWebsocketShowAndClearResult(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	server, wsUrl := web.startTestServer()
 	defer server.Close()
@@ -458,7 +458,7 @@ func TestMatchPlayWebsocketShowAndClearResult(t *testing.T) {
 }
 
 func TestMatchPlayWebsocketNotifications(t *testing.T) {
-	web := setupTestWeb(t)
+	web := setupLegacyScoringTestWeb(t)
 
 	web.arena.Database.CreateTeam(&model.Team{Id: 254})
 

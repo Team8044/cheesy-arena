@@ -48,14 +48,16 @@ func TestSetupDisplaysWebsocket(t *testing.T) {
 	if assert.Equal(t, 2, len(message)) {
 		assert.Equal(
 			t,
-			field.DisplayConfiguration{"1", "", field.PlaceholderDisplay, map[string]string{}},
+			field.DisplayConfiguration{"1", "", field.PlaceholderDisplay, map[string]string{}, false},
 			message["1"].DisplayConfiguration,
 		)
 		assert.Equal(t, 1, message["1"].ConnectionCount)
 		assert.Equal(t, "127.0.0.1", message["1"].IpAddress)
 		assert.Equal(
 			t,
-			field.DisplayConfiguration{"2", "", field.AllianceStationDisplay, map[string]string{"station": "R2"}},
+			field.DisplayConfiguration{
+				"2", "", field.AllianceStationDisplay, map[string]string{"station": "R2"}, false,
+			},
 			message["2"].DisplayConfiguration,
 		)
 		assert.Equal(t, 1, message["2"].ConnectionCount)

@@ -39,7 +39,8 @@ var handleMatchLoad = function (data) {
 // Handles a websocket message to update the match time countdown.
 var handleMatchTime = function (data) {
   translateMatchTime(data, function (matchState, matchStateText, countdownSec) {
-    $("#matchState").text(matchStateText);
+    const shiftStatus = getShiftStatusText(data);
+    $("#matchState").text(shiftStatus ? `${matchStateText} / ${shiftStatus}` : matchStateText);
     $("#matchTime").text(getCountdown(data.MatchState, data.MatchTimeSec));
   });
 };

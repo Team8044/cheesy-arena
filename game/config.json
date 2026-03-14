@@ -2,197 +2,21 @@
   "name": "Custom Game",
   "panels": [
     {
-      "id": "blue_near",
-      "title": "Blue Near",
+      "id": "red_near",
+      "title": "Red Near",
       "widgets": [
         {
-          "id": "section_1763967839027",
-          "type": "section",
-          "label": "Auto",
+          "id": "counter_1773477033322",
+          "type": "counter",
+          "label": "Fuel",
           "phase": "any",
-          "color": "#555",
+          "color": "#22d3ee",
           "position": {
             "row": 1,
             "col": 1,
-            "colSpan": 4
-          },
-          "scoringId": "",
-          "states": []
-        },
-        {
-          "id": "counter_1763967861168",
-          "type": "counter",
-          "label": "Auto L1",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 2,
-            "col": 1,
             "colSpan": 1
           },
-          "scoringId": "score_1763967787288"
-        },
-        {
-          "id": "counter_1763967861512",
-          "type": "counter",
-          "label": "Auto L2",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 2,
-            "col": 2,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967880645"
-        },
-        {
-          "id": "counter_1763967861812",
-          "type": "counter",
-          "label": "Auto L3",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 2,
-            "col": 3,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967880818"
-        },
-        {
-          "id": "counter_1763967862113",
-          "type": "counter",
-          "label": "Auto L4",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 2,
-            "col": 4,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967881013"
-        },
-        {
-          "id": "section_1763967863801",
-          "type": "section",
-          "label": "Teleop",
-          "phase": "any",
-          "color": "#555",
-          "position": {
-            "row": 3,
-            "col": 1,
-            "colSpan": 4
-          },
-          "scoringId": "",
-          "states": []
-        },
-        {
-          "id": "counter_1763967866785",
-          "type": "counter",
-          "label": "Tele L1",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 4,
-            "col": 1,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967881906"
-        },
-        {
-          "id": "counter_1763967867032",
-          "type": "counter",
-          "label": "Tele L2",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 4,
-            "col": 2,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967882093"
-        },
-        {
-          "id": "counter_1763967867311",
-          "type": "counter",
-          "label": "Tele L3",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 4,
-            "col": 3,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967882303"
-        },
-        {
-          "id": "counter_1763967867625",
-          "type": "counter",
-          "label": "Tele L4",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 4,
-            "col": 4,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967882551"
-        },
-        {
-          "id": "section_1763967870880",
-          "type": "section",
-          "label": "Endgame",
-          "phase": "any",
-          "color": "#555",
-          "position": {
-            "row": 5,
-            "col": 1,
-            "colSpan": 4
-          },
-          "scoringId": "",
-          "states": []
-        },
-        {
-          "id": "multistate_1763967872771",
-          "type": "multistate",
-          "label": "Endgame",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 6,
-            "col": 1,
-            "colSpan": 1
-          },
-          "states": [
-            {
-              "label": "Park",
-              "value": "state_1",
-              "scoringId": "score_1763967889953"
-            },
-            {
-              "label": "Low",
-              "value": "state_2",
-              "scoringId": "score_1763967890185"
-            },
-            {
-              "value": "state_3",
-              "label": "High",
-              "scoringId": "score_1763967890515"
-            }
-          ],
-          "scoringId": "score_1763967890710"
-        },
-        {
-          "id": "toggle_1763968138873",
-          "type": "toggle",
-          "label": "Toggle",
-          "phase": "any",
-          "color": "#22d3ee",
-          "position": {
-            "row": 6,
-            "col": 2,
-            "colSpan": 1
-          },
-          "scoringId": "score_1763967890515"
+          "scoringId": "score_1773476947574"
         }
       ]
     },
@@ -202,9 +26,23 @@
       "widgets": []
     },
     {
-      "id": "red_near",
-      "title": "Red Near",
-      "widgets": []
+      "id": "blue_near",
+      "title": "Blue Near",
+      "widgets": [
+        {
+          "id": "counter_1773477066422",
+          "type": "counter",
+          "label": "Fuel",
+          "phase": "any",
+          "color": "#22d3ee",
+          "position": {
+            "row": 1,
+            "col": 1,
+            "colSpan": 1
+          },
+          "scoringId": "score_1773476947574"
+        }
+      ]
     },
     {
       "id": "blue_far",
@@ -240,59 +78,10 @@
   "version": "1.0.0",
   "scoring": [
     {
-      "id": "score_1763967787288",
-      "label": "Auto L1",
-      "pointValue": 2
-    },
-    {
-      "id": "score_1763967880645",
-      "label": "Auto L2",
-      "pointValue": 4
-    },
-    {
-      "id": "score_1763967880818",
-      "label": "Auto L3",
-      "pointValue": 6
-    },
-    {
-      "id": "score_1763967881013",
-      "label": "Auto L4",
-      "pointValue": 8
-    },
-    {
-      "id": "score_1763967881906",
-      "label": "Tele L1",
-      "pointValue": 1
-    },
-    {
-      "id": "score_1763967882093",
-      "label": "Tele L2",
-      "pointValue": 2
-    },
-    {
-      "id": "score_1763967882303",
-      "label": "Tele L3",
-      "pointValue": 3
-    },
-    {
-      "id": "score_1763967882551",
-      "label": "Tele L4",
-      "pointValue": 4
-    },
-    {
-      "id": "score_1763967889953",
-      "label": "Parked",
-      "pointValue": 3
-    },
-    {
-      "id": "score_1763967890185",
-      "label": "Low Climb",
-      "pointValue": 5
-    },
-    {
-      "id": "score_1763967890515",
-      "label": "High Climb",
-      "pointValue": 10
+      "id": "score_1773476947574",
+      "label": "Fuel",
+      "pointValue": 1,
+      "countsForAutoFuel": true
     }
   ]
 }

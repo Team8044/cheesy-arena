@@ -4,14 +4,22 @@
 package field
 
 import (
+	"fmt"
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
 	"github.com/stretchr/testify/assert"
 	"image/color"
 	"testing"
+	"time"
 )
 
 func TestTeamSign_GenerateInMatchRearText(t *testing.T) {
+	previousConfig := game.ActiveGameConfig
+	game.ActiveGameConfig = nil
+	defer func() {
+		game.ActiveGameConfig = previousConfig
+	}()
+
 	arena := setupTestArena(t)
 	arena.RedRealtimeScore.CurrentScore = *game.TestScore1()
 	arena.BlueRealtimeScore.CurrentScore = *game.TestScore2()
@@ -182,9 +190,10 @@ func TestTeamSign_TeamNumber(t *testing.T) {
 	arena.AllianceStationDisplayMode = "logo"
 	arena.AudienceDisplayMode = "allianceSelection"
 	arena.AllianceSelectionShowTimer = false
-	assertSign(true, " 2025", redColor, "1503      Connect PC")
+	yearText := fmt.Sprintf("%5d", time.Now().Year())
+	assertSign(true, yearText, redColor, "1503      Connect PC")
 	arena.AllianceSelectionShowTimer = true
-	assertSign(false, " 2025", blueColor, "1503      Connect PC")
+	assertSign(false, yearText, blueColor, "1503      Connect PC")
 	arena.AllianceStationDisplayMode = "blank"
 	assertSign(false, "     ", whiteColor, "")
 }
